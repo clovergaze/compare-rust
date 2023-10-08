@@ -1,6 +1,6 @@
 use std::env;
 use std::fs::File;
-use std::io::{self, Read, Seek, SeekFrom};
+use std::io::{self, Read};
 use std::process;
 
 fn main() -> io::Result<()> {
@@ -16,7 +16,7 @@ fn main() -> io::Result<()> {
     process::exit(1);
   });
 
-  let filesize1 = fsize(&mut file1)?;
+  let filesize1 = file1.metadata().unwrap().len();
 
   let filename2 = &args[2];
   let mut file2 = File::open(filename2).unwrap_or_else(|_| {
@@ -24,7 +24,7 @@ fn main() -> io::Result<()> {
     process::exit(1);
   });
 
-  let filesize2 = fsize(&mut file2)?;
+  let filesize2 = file2.metadata().unwrap().len();
 
   if filesize1 != filesize2 {
     println!("Files are not identical, the size is unequal.");
@@ -54,10 +54,4 @@ fn main() -> io::Result<()> {
 
   println!("Files are identical.");
   Ok(())
-}
-
-fn fsize(file: &mut File) -> io::Result<u64> {
-  let size = file.seek(SeekFrom::End(0))?;
-  file.seek(SeekFrom::Start(0))?;
-  Ok(size)
 }
